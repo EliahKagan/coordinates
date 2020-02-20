@@ -11,10 +11,10 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   // Symbolic constants for the point to plot and its coordinate label.
   const POINT_SHADE = 230;
   const POINT_LABELS_FONTSIZE = 12;
-  const POINT_CARTESIAN_LABEL_UX_OFFSET = 5;
-  const POINT_CARTESIAN_LABEL_UY_OFFSET = -7;
-  const POINT_POLAR_LABEL_UX_OFFSET = POINT_CARTESIAN_LABEL_UX_OFFSET;
-  const POINT_POLAR_LABEL_UY_OFFSET = 15;
+  const POINT_CARTESIAN_LABEL_CX_OFFSET = 5;
+  const POINT_CARTESIAN_LABEL_CY_OFFSET = -7;
+  const POINT_POLAR_LABEL_CX_OFFSET = POINT_CARTESIAN_LABEL_CX_OFFSET;
+  const POINT_POLAR_LABEL_CY_OFFSET = 15;
 
   // Number of fractional digits (fixed-point precision) for angle labels.
   const POINT_POLAR_LABEL_R_PREC = 0;
@@ -40,13 +40,13 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   const SCALE_TICK_MARKS_OPACITY = 48; // alpha channel value
   const SCALE_LABELS_FONTSIZE = 8;
   const SCALE_LABELS_MIN_SPACING = 20;
-  const SCALE_LABELS_UX_OFFSET = 6;
-  const SCALE_LABELS_UY_OFFSET = SCALE_TICK_MARKS_LENGTH +
+  const SCALE_LABELS_CX_OFFSET = 6;
+  const SCALE_LABELS_CY_OFFSET = SCALE_TICK_MARKS_LENGTH +
                                   SCALE_LABELS_FONTSIZE;
 
   // Symbolic constants to tune the fill pattern ("eye candy").
-  const PATTERN_UX_OFFSET = 1; // Also test with: 10
-  const PATTERN_UY_OFFSET = 2; // Also test with: 20
+  const PATTERN_CX_OFFSET = 1; // Also test with: 10
+  const PATTERN_CY_OFFSET = 2; // Also test with: 20
   const PATTERN_MESH = 7; // Unrelated to grid mesh. Also test with: 25
   const PATTERN_OPACITY = 100; // alpha channel value
   const DEBUG_PATTERN_ENVELOPE = false;
@@ -75,8 +75,8 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   let patternModeOn = false;
   let gridMesh = GRID_MESH_MIN - 5; // Any out-of-range value is good here.
 
-  let uxDrawn = null;
-  let uyDrawn = null;
+  let cxDrawn = null;
+  let cyDrawn = null;
 
   function toggleActivation() {
     if (activeModeOn) {
@@ -97,42 +97,42 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     toggleActivation();
   }
 
-  function inCanvas(ux, uy) {
-    return 0 <= ux && ux < FULL_SIZE && 0 <= uy && uy < FULL_SIZE;
+  function inCanvas(cx, cy) {
+    return 0 <= cx && cx < FULL_SIZE && 0 <= cy && cy < FULL_SIZE;
   }
 
   function haveGrid() {
     return GRID_MESH_MIN <= gridMesh && gridMesh <= GRID_MESH_MAX;
   }
 
-  function doPoint(ux, uy) {
+  function doPoint(cx, cy) {
     stroke(POINT_SHADE, 0, 0);
     strokeWeight(5);
-    point(ux, uy);
+    point(cx, cy);
   }
 
-  function xCoord(ux) {
-    return ux - HALF_SIZE;
+  function xCoord(cx) {
+    return cx - HALF_SIZE;
   }
 
-  function yCoord(uy) {
-    return HALF_SIZE - uy;
+  function yCoord(cy) {
+    return HALF_SIZE - cy;
   }
 
-  function uxParam(x) {
+  function cxParam(x) {
     return x + HALF_SIZE;
   }
 
-  function uyParam(y) {
+  function cyParam(y) {
     return HALF_SIZE - y;
   }
 
-  function doHorizontal(uy) {
-    line(0, uy, FULL_SIZE, uy);
+  function doHorizontal(cy) {
+    line(0, cy, FULL_SIZE, cy);
   }
 
-  function doVertical(ux) {
-    line(ux, 0, ux, FULL_SIZE);
+  function doVertical(cx) {
+    line(cx, 0, cx, FULL_SIZE);
   }
 
   function doGridLines() {
@@ -151,33 +151,33 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   }
 
   function labelCoordX(x) {
-    const ux = uxParam(x);
+    const cx = cxParam(x);
 
     stroke(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
     strokeWeight(1);
     fill(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
-    line(ux, HALF_SIZE, ux, HALF_SIZE + SCALE_TICK_MARKS_LENGTH);
+    line(cx, HALF_SIZE, cx, HALF_SIZE + SCALE_TICK_MARKS_LENGTH);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(CENTER);
     textSize(SCALE_LABELS_FONTSIZE);
-    text(withSign(x), ux, HALF_SIZE + SCALE_LABELS_UY_OFFSET);
+    text(withSign(x), cx, HALF_SIZE + SCALE_LABELS_CY_OFFSET);
   }
 
   function labelCoordY(y) {
-    const uy = uyParam(y);
+    const cy = cyParam(y);
 
     stroke(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
     strokeWeight(1);
     fill(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
-    line(HALF_SIZE, uy, HALF_SIZE + SCALE_TICK_MARKS_LENGTH, uy);
+    line(HALF_SIZE, cy, HALF_SIZE + SCALE_TICK_MARKS_LENGTH, cy);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(LEFT);
     textSize(SCALE_LABELS_FONTSIZE);
-    text(withSign(y), HALF_SIZE + SCALE_LABELS_UX_OFFSET, uy);
+    text(withSign(y), HALF_SIZE + SCALE_LABELS_CX_OFFSET, cy);
   }
 
   function doGridLabels() {
@@ -196,43 +196,43 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     doGridLabels();
   }
 
-  function doCrosslines(ux, uy, shade) {
+  function doCrosslines(cx, cy, shade) {
     stroke(shade, shade, shade);
     strokeWeight(1);
-    doHorizontal(uy);
-    doVertical(ux);
+    doHorizontal(cy);
+    doVertical(cx);
   }
 
-  function doCartesian(ux, uy) {
+  function doCartesian(cx, cy) {
     doCrosslines(HALF_SIZE, HALF_SIZE, 0);
-    doCrosslines(ux, uy, INTERSECTOR_SHADE);
+    doCrosslines(cx, cy, INTERSECTOR_SHADE);
 
     noStroke();
     fill(0, 0, 0, 255);
     textSize(POINT_LABELS_FONTSIZE);
     textAlign(LEFT);
 
-    text(`(${withSign(xCoord(ux))}, ${withSign(yCoord(uy))})`,
-         ux + POINT_CARTESIAN_LABEL_UX_OFFSET,
-         uy + POINT_CARTESIAN_LABEL_UY_OFFSET);
+    text(`(${withSign(xCoord(cx))}, ${withSign(yCoord(cy))})`,
+         cx + POINT_CARTESIAN_LABEL_CX_OFFSET,
+         cy + POINT_CARTESIAN_LABEL_CY_OFFSET);
   }
 
-  function rCoord(ux, uy) {
-    const x = xCoord(ux);
-    const y = yCoord(uy);
+  function rCoord(cx, cy) {
+    const x = xCoord(cx);
+    const y = yCoord(cy);
     return sqrt(sq(x) + sq(y));
   }
 
-  function phiCoord(ux, uy) {
-    const x = xCoord(ux);
-    const y = yCoord(uy);
+  function phiCoord(cx, cy) {
+    const x = xCoord(cx);
+    const y = yCoord(cy);
     const phi = atan2(y, x);
 
     return phi < 0 ? phi + TWO_PI : phi;
   }
 
-  function doCircle(ux, uy) {
-    const r = rCoord(ux, uy);
+  function doCircle(cx, cy) {
+    const r = rCoord(cx, cy);
 
     stroke(0, INTERSECTOR_SHADE, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
@@ -240,9 +240,9 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     circle(HALF_SIZE, HALF_SIZE, r * 2);
   }
 
-  function doArc(ux, uy) {
-    const r = rCoord(ux, uy);
-    const phi = phiCoord(ux, uy);
+  function doArc(cx, cy) {
+    const r = rCoord(cx, cy);
+    const phi = phiCoord(cx, cy);
     if (phi < ANGLE_EPSILON) return; // Keep arc() from drawing 2pi for 0.
 
     stroke(0, 0, INTERSECTOR_SHADE, 255);
@@ -251,13 +251,13 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     arc(HALF_SIZE, HALF_SIZE, r * 2, r * 2, -phi, 0);
   }
 
-  function doRay(ux, uy) {
-    const r = rCoord(ux, uy);
+  function doRay(cx, cy) {
+    const r = rCoord(cx, cy);
     if (r < 1) return;
 
     const scale = RAY_LENGTH / r;
-    const x = xCoord(ux);
-    const y = yCoord(uy);
+    const x = xCoord(cx);
+    const y = yCoord(cy);
 
     stroke(0, INTERSECTOR_SHADE, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
@@ -266,11 +266,11 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
          HALF_SIZE + x * scale, HALF_SIZE - y * scale);
   }
 
-  function doRadius(ux, uy) {
+  function doRadius(cx, cy) {
     stroke(0, 0, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
-    line(HALF_SIZE, HALF_SIZE, ux, uy);
+    line(HALF_SIZE, HALF_SIZE, cx, cy);
   }
 
   function showPatternEnvelope(imin, imax, jmin, jmax) {
@@ -283,14 +283,14 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     doHorizontal(jmax);
   }
 
-  function doPattern(ux, uy) {
-    const r = rCoord(ux, uy);
-    const phi = phiCoord(ux, uy);
+  function doPattern(cx, cy) {
+    const r = rCoord(cx, cy);
+    const phi = phiCoord(cx, cy);
 
-    const imin = snapDown(HALF_SIZE - r, PATTERN_UX_OFFSET, PATTERN_MESH);
-    const imax = snapUp(HALF_SIZE + r, PATTERN_UX_OFFSET, PATTERN_MESH);
-    const jmin = snapDown(HALF_SIZE - r, PATTERN_UY_OFFSET, PATTERN_MESH);
-    const jmax = snapUp(HALF_SIZE + r, PATTERN_UY_OFFSET, PATTERN_MESH);
+    const imin = snapDown(HALF_SIZE - r, PATTERN_CX_OFFSET, PATTERN_MESH);
+    const imax = snapUp(HALF_SIZE + r, PATTERN_CX_OFFSET, PATTERN_MESH);
+    const jmin = snapDown(HALF_SIZE - r, PATTERN_CY_OFFSET, PATTERN_MESH);
+    const jmax = snapUp(HALF_SIZE + r, PATTERN_CY_OFFSET, PATTERN_MESH);
 
     if (DEBUG_PATTERN_ENVELOPE) {
       showPatternEnvelope(imin, imax, jmin, jmax);
@@ -308,18 +308,18 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     }
   }
 
-  function doPolar(ux, uy) {
-    doCircle(ux, uy);
-    doArc(ux, uy);
-    doRay(ux, uy);
-    doRadius(ux, uy);
+  function doPolar(cx, cy) {
+    doCircle(cx, cy);
+    doArc(cx, cy);
+    doRay(cx, cy);
+    doRadius(cx, cy);
 
     if (patternModeOn) {
-      doPattern(ux, uy);
+      doPattern(cx, cy);
     }
 
-    const r = rCoord(ux, uy);
-    const phi = phiCoord(ux, uy);
+    const r = rCoord(cx, cy);
+    const phi = phiCoord(cx, cy);
 
     const rStr = r.toFixed(POINT_POLAR_LABEL_R_PREC);
     const phiStr = phi.toFixed(POINT_POLAR_LABEL_RADS_PREC);
@@ -332,35 +332,35 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
     text(`${rStr}${ANGLE_GLYPH}${phiStr}` +
           `${THIN_SPACE}[${phiDegsStr}${DEGS_GLYPH}]`,
-         ux + POINT_POLAR_LABEL_UX_OFFSET, uy + POINT_POLAR_LABEL_UY_OFFSET);
+         cx + POINT_POLAR_LABEL_CX_OFFSET, cy + POINT_POLAR_LABEL_CY_OFFSET);
   }
 
-  function reveal(ux, uy) {
-    doCartesian(ux, uy);
-    doPolar(ux, uy);
-    doPoint(ux, uy);
+  function reveal(cx, cy) {
+    doCartesian(cx, cy);
+    doPolar(cx, cy);
+    doPoint(cx, cy);
   }
 
-  function update(ux, uy) {
+  function update(cx, cy) {
     background(CANVAS_SHADE);
 
     if (haveGrid()) {
       doGrid();
     }
 
-    reveal(ux, uy);
+    reveal(cx, cy);
   }
 
   function draw() {
     if (!activeModeOn) return;
 
-    const ux = mouseX;
-    const uy = mouseY;
-    if (!inCanvas(ux, uy)) return;
+    const cx = mouseX;
+    const cy = mouseY;
+    if (!inCanvas(cx, cy)) return;
 
-    update(ux, uy);
-    uxDrawn = ux;
-    uyDrawn = uy;
+    update(cx, cy);
+    cxDrawn = cx;
+    cyDrawn = cy;
   }
 
   function mouseClicked() {
@@ -388,11 +388,11 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
       gridMesh = GRID_MESH_MIN; // Scroll "back around" to small mesh.
     }
 
-    if (activeModeOn || uxDrawn === null || uyDrawn === null) return;
+    if (activeModeOn || cxDrawn === null || cyDrawn === null) return;
 
     // Even if the UI isn't set to respond to cursor position, a grid mesh
     // change should still take effect immediately. So do it explicitly.
-    update(uxDrawn, uyDrawn);
+    update(cxDrawn, cyDrawn);
   }
 
   function mouseWheel(event) {
