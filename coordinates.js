@@ -1,42 +1,55 @@
 var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   'use strict';
 
-  // Font sizes.
-  const SCALE_LABEL_FONTSIZE = 8;
-  const POINT_TOOLTIP_FONTSIZE = 12;
-
-  // Major geometrically meaningful length parameters.
+  // Symbolic constants for canvas size, geometry, and color.
   const FULL_SIZE = 500;
   const HALF_SIZE = FULL_SIZE / 2;
   const RAY_LENGTH = FULL_SIZE; // Anything long enough is fine.
-  const EPSILON = 0.0001;
+  const ANGLE_EPSILON = 0.0001; // For numeric comparisons (not iteration).
+  const CANVAS_SHADE = 240;
 
-  // Length parameters for gridlines ("graph paper").
-  const MIN_GRID_MESH = 10;
-  const MAX_GRID_MESH = 100;
-  const GRID_MESH_DELTA = 5;
+  // Symbolic constants for the point to plot and its coordinate label.
+  const POINT_SHADE = 230;
+  const POINT_LABELS_FONTSIZE = 12;
+  const POINT_CARTESIAN_LABEL_UX_OFFSET = 5;
+  const POINT_CARTESIAN_LABEL_UY_OFFSET = -7;
+  const POINT_POLAR_LABEL_UX_OFFSET = POINT_CARTESIAN_LABEL_UX_OFFSET;
+  const POINT_POLAR_LABEL_UY_OFFSET = 15;
 
-  // Length parameters for drawing grid scale labels.
-  const MIN_SCALE_LABEL_SPACING = 20;
-  const SCALE_TICK_MARK_LENGTH = 6;
-  const HORIZONTAL_SCALE_LABEL_OFFSET = 6;
-  const VERTICAL_SCALE_LABEL_OFFSET = SCALE_TICK_MARK_LENGTH +
-                                        SCALE_LABEL_FONTSIZE;
+  // Number of fractional digits (fixed-point precision) for angle labels.
+  const POINT_POLAR_LABEL_R_PREC = 0;
+  const POINT_POLAR_LABEL_RADS_PREC = 2;
+  const POINT_POLAR_LABEL_DEGS_PREC = 1;
 
-  // Fill-pattern eye candy parameters. Not geometrically interesting.
+  // Symbols and spacers used in the text label of the point being plotted.
+  const ANGLE_GLYPH = '\u2220';
+  const DEGS_GLYPH = '\u00B0';
+  const THIN_SPACE = '\u2009';
+
+  // Shade of lines/curves with one coordinate of the point to plot.
+  const INTERSECTOR_SHADE = 200;
+
+  // Symbolic constants for gridlines ("graph paper lines").
+  const GRID_MESH_MIN = 10;
+  const GRID_MESH_MAX = 100;
+  const GRID_MESH_SCALE_DELTA = 5;
+  const GRID_LINES_OPACITY = 8; // alpha channel value
+
+  // Symbolic constants for axis scale markings (tick marks and labels).
+  const SCALE_TICK_MARKS_LENGTH = 6;
+  const SCALE_TICK_MARKS_OPACITY = 48; // alpha channel value
+  const SCALE_LABELS_FONTSIZE = 8;
+  const SCALE_LABELS_MIN_SPACING = 20;
+  const SCALE_LABELS_UX_OFFSET = 6;
+  const SCALE_LABELS_UY_OFFSET = SCALE_TICK_MARKS_LENGTH +
+                                  SCALE_LABELS_FONTSIZE;
+
+  // Symbolic constants to tune the fill pattern ("eye candy").
   const PATTERN_UX_OFFSET = 1; // Also test with: 10
   const PATTERN_UY_OFFSET = 2; // Also test with: 20
   const PATTERN_MESH = 7; // Unrelated to grid mesh. Also test with: 25
-  const DEBUG_PATTERN = false;
-
-  // Unicode code points for symbols and spacers.
-  const ANGLE_GLYPH = '\u2220';
-  const DEGREES_GLYPH = '\u00B0';
-  const THIN_SPACE = '\u2009';
-
-  // Coloring constants.
-  const MEDIUM_SHADE = 200;
-  const BRIGHT_SHADE = 230;
+  const PATTERN_OPACITY = 100; // alpha channel value
+  const DEBUG_PATTERN_ENVELOPE = false;
 
   function roundDown(value, resolution) {
     return floor(value / resolution) * resolution;
@@ -60,7 +73,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
   let activeModeOn = false;
   let patternModeOn = false;
-  let gridMesh = MIN_GRID_MESH - 5; // Any out-of-range value is good here.
+  let gridMesh = GRID_MESH_MIN - 5; // Any out-of-range value is good here.
 
   let uxDrawn = null;
   let uyDrawn = null;
@@ -89,11 +102,11 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   }
 
   function haveGrid() {
-    return MIN_GRID_MESH <= gridMesh && gridMesh <= MAX_GRID_MESH;
+    return GRID_MESH_MIN <= gridMesh && gridMesh <= GRID_MESH_MAX;
   }
 
-  function doPosition(ux, uy) {
-    stroke(BRIGHT_SHADE, 0, 0);
+  function doPoint(ux, uy) {
+    stroke(POINT_SHADE, 0, 0);
     strokeWeight(5);
     point(ux, uy);
   }
@@ -123,7 +136,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   }
 
   function doGridLines() {
-    stroke(0, 0, 0, 8);
+    stroke(0, 0, 0, GRID_LINES_OPACITY);
     strokeWeight(1);
 
     for (let k = HALF_SIZE; k > 0; k -= gridMesh) {
@@ -140,35 +153,35 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   function labelCoordX(x) {
     const ux = uxParam(x);
 
-    stroke(0, 0, 0, 48);
+    stroke(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
     strokeWeight(1);
-    fill(0, 0, 0, 48);
-    line(ux, HALF_SIZE, ux, HALF_SIZE + SCALE_TICK_MARK_LENGTH);
+    fill(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
+    line(ux, HALF_SIZE, ux, HALF_SIZE + SCALE_TICK_MARKS_LENGTH);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(CENTER);
-    textSize(SCALE_LABEL_FONTSIZE);
-    text(withSign(x), ux, HALF_SIZE + VERTICAL_SCALE_LABEL_OFFSET);
+    textSize(SCALE_LABELS_FONTSIZE);
+    text(withSign(x), ux, HALF_SIZE + SCALE_LABELS_UY_OFFSET);
   }
 
   function labelCoordY(y) {
     const uy = uyParam(y);
 
-    stroke(0, 0, 0, 48);
+    stroke(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
     strokeWeight(1);
-    fill(0, 0, 0, 48);
-    line(HALF_SIZE, uy, HALF_SIZE + SCALE_TICK_MARK_LENGTH, uy);
+    fill(0, 0, 0, SCALE_TICK_MARKS_OPACITY);
+    line(HALF_SIZE, uy, HALF_SIZE + SCALE_TICK_MARKS_LENGTH, uy);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(LEFT);
-    textSize(SCALE_LABEL_FONTSIZE);
-    text(withSign(y), HALF_SIZE + HORIZONTAL_SCALE_LABEL_OFFSET, uy);
+    textSize(SCALE_LABELS_FONTSIZE);
+    text(withSign(y), HALF_SIZE + SCALE_LABELS_UX_OFFSET, uy);
   }
 
   function doGridLabels() {
-    const spacing = roundUp(MIN_SCALE_LABEL_SPACING, gridMesh);
+    const spacing = roundUp(SCALE_LABELS_MIN_SPACING, gridMesh);
 
     for (let r = spacing; r < HALF_SIZE; r += spacing) {
       labelCoordX(-r);
@@ -192,14 +205,16 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
   function doCartesian(ux, uy) {
     doCrosslines(HALF_SIZE, HALF_SIZE, 0);
-    doCrosslines(ux, uy, MEDIUM_SHADE);
+    doCrosslines(ux, uy, INTERSECTOR_SHADE);
 
     noStroke();
     fill(0, 0, 0, 255);
-    textSize(POINT_TOOLTIP_FONTSIZE);
+    textSize(POINT_LABELS_FONTSIZE);
     textAlign(LEFT);
+
     text(`(${withSign(xCoord(ux))}, ${withSign(yCoord(uy))})`,
-      ux + 5, uy - 7);
+         ux + POINT_CARTESIAN_LABEL_UX_OFFSET,
+         uy + POINT_CARTESIAN_LABEL_UY_OFFSET);
   }
 
   function rCoord(ux, uy) {
@@ -219,7 +234,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   function doCircle(ux, uy) {
     const r = rCoord(ux, uy);
 
-    stroke(0, MEDIUM_SHADE, MEDIUM_SHADE, 255);
+    stroke(0, INTERSECTOR_SHADE, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
     circle(HALF_SIZE, HALF_SIZE, r * 2);
@@ -228,9 +243,9 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   function doArc(ux, uy) {
     const r = rCoord(ux, uy);
     const phi = phiCoord(ux, uy);
-    if (phi < EPSILON) return; // Prevent arc() from drawing 2pi for 0.
+    if (phi < ANGLE_EPSILON) return; // Keep arc() from drawing 2pi for 0.
 
-    stroke(0, 0, MEDIUM_SHADE, 255);
+    stroke(0, 0, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
     arc(HALF_SIZE, HALF_SIZE, r * 2, r * 2, -phi, 0);
@@ -244,14 +259,15 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     const x = xCoord(ux);
     const y = yCoord(uy);
 
-    stroke(0, MEDIUM_SHADE, MEDIUM_SHADE, 255);
+    stroke(0, INTERSECTOR_SHADE, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
-    line(HALF_SIZE, HALF_SIZE, HALF_SIZE + x * scale, HALF_SIZE - y * scale);
+    line(HALF_SIZE, HALF_SIZE,
+         HALF_SIZE + x * scale, HALF_SIZE - y * scale);
   }
 
   function doRadius(ux, uy) {
-    stroke(0, 0, MEDIUM_SHADE, 255);
+    stroke(0, 0, INTERSECTOR_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
     line(HALF_SIZE, HALF_SIZE, ux, uy);
@@ -276,11 +292,11 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     const jmin = snapDown(HALF_SIZE - r, PATTERN_UY_OFFSET, PATTERN_MESH);
     const jmax = snapUp(HALF_SIZE + r, PATTERN_UY_OFFSET, PATTERN_MESH);
 
-    if (DEBUG_PATTERN) {
+    if (DEBUG_PATTERN_ENVELOPE) {
       showPatternEnvelope(imin, imax, jmin, jmax);
     }
 
-    stroke(0, 128, 255, 100);
+    stroke(0, 128, 255, PATTERN_OPACITY); // Halfway between blue and cyan.
     strokeWeight(1);
 
     for (let i = imin; i <= imax; i += PATTERN_MESH) {
@@ -305,22 +321,28 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     const r = rCoord(ux, uy);
     const phi = phiCoord(ux, uy);
 
+    const rStr = r.toFixed(POINT_POLAR_LABEL_R_PREC);
+    const phiStr = phi.toFixed(POINT_POLAR_LABEL_RADS_PREC);
+    const phiDegsStr = degrees(phi).toFixed(POINT_POLAR_LABEL_DEGS_PREC);
+
     noStroke();
     fill(0, 0, 0, 255);
-    textSize(POINT_TOOLTIP_FONTSIZE);
+    textSize(POINT_LABELS_FONTSIZE);
     textAlign(LEFT);
-    text(`${r.toFixed(0)}${ANGLE_GLYPH}${phi.toFixed(2)}${THIN_SPACE}` +
-          `[${degrees(phi).toFixed(1)}${DEGREES_GLYPH}]`, ux + 5, uy + 15);
+
+    text(`${rStr}${ANGLE_GLYPH}${phiStr}` +
+          `${THIN_SPACE}[${phiDegsStr}${DEGS_GLYPH}]`,
+         ux + POINT_POLAR_LABEL_UX_OFFSET, uy + POINT_POLAR_LABEL_UY_OFFSET);
   }
 
   function reveal(ux, uy) {
     doCartesian(ux, uy);
     doPolar(ux, uy);
-    doPosition(ux, uy);
+    doPoint(ux, uy);
   }
 
   function update(ux, uy) {
-    background(240);
+    background(CANVAS_SHADE);
 
     if (haveGrid()) {
       doGrid();
@@ -361,9 +383,9 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     if (haveGrid()) {
       gridMesh += delta;
     } else if (delta < 0) {
-      gridMesh = MAX_GRID_MESH; // Scroll "back around" to large mesh.
+      gridMesh = GRID_MESH_MAX; // Scroll "back around" to large mesh.
     } else {
-      gridMesh = MIN_GRID_MESH; // Scroll "back around" to small mesh.
+      gridMesh = GRID_MESH_MIN; // Scroll "back around" to small mesh.
     }
 
     if (activeModeOn || uxDrawn === null || uyDrawn === null) return;
@@ -375,7 +397,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
   function mouseWheel(event) {
     if (inCanvas(mouseX, mouseY) && event.delta !== 0) {
-      adjustGridMesh(-Math.sign(event.delta) * GRID_MESH_DELTA);
+      adjustGridMesh(-Math.sign(event.delta) * GRID_MESH_SCALE_DELTA);
     }
 
     return false;
