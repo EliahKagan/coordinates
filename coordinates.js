@@ -1,6 +1,10 @@
 var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   'use strict';
 
+  // Font sizes.
+  const SCALE_LABEL_FONTSIZE = 8;
+  const POINT_TOOLTIP_FONTSIZE = 12;
+
   // Major geometrically meaningful length parameters.
   const FULL_SIZE = 500;
   const HALF_SIZE = FULL_SIZE / 2;
@@ -12,12 +16,12 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   const MAX_GRID_MESH = 100;
   const GRID_MESH_DELTA = 5;
 
-  // Length and size parameters for drawing grid scale labels.
-  const MIN_LABEL_SPACING = 20;
-  const TICK_MARK_LENGTH = 6;
-  const LABEL_FONTSIZE = 8;
-  const HORIZONTAL_LABEL_OFFSET = 6;
-  const VERTICAL_LABEL_OFFSET = TICK_MARK_LENGTH + LABEL_FONTSIZE;
+  // Length parameters for drawing grid scale labels.
+  const MIN_SCALE_LABEL_SPACING = 20;
+  const SCALE_TICK_MARK_LENGTH = 6;
+  const HORIZONTAL_SCALE_LABEL_OFFSET = 6;
+  const VERTICAL_SCALE_LABEL_OFFSET = SCALE_TICK_MARK_LENGTH +
+                                        SCALE_LABEL_FONTSIZE;
 
   // Fill-pattern eye candy parameters. Not geometrically interesting.
   const PATTERN_UX_OFFSET = 1; // Also test with: 10
@@ -32,6 +36,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
   // Coloring constants.
   const MEDIUM_SHADE = 200;
+  const BRIGHT_SHADE = 230;
 
   function roundDown(value, resolution) {
     return floor(value / resolution) * resolution;
@@ -88,7 +93,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   }
 
   function doPosition(ux, uy) {
-    stroke(230, 0, 0);
+    stroke(BRIGHT_SHADE, 0, 0);
     strokeWeight(5);
     point(ux, uy);
   }
@@ -124,7 +129,6 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     for (let k = HALF_SIZE; k > 0; k -= gridMesh) {
       doHorizontal(k);
       doVertical(k);
-
     }
 
     for (let k = HALF_SIZE + gridMesh; k < FULL_SIZE; k += gridMesh) {
@@ -139,13 +143,13 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     stroke(0, 0, 0, 48);
     strokeWeight(1);
     fill(0, 0, 0, 48);
-    line(ux, HALF_SIZE, ux, HALF_SIZE + TICK_MARK_LENGTH);
+    line(ux, HALF_SIZE, ux, HALF_SIZE + SCALE_TICK_MARK_LENGTH);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(CENTER);
-    textSize(LABEL_FONTSIZE);
-    text(withSign(x), ux, HALF_SIZE + VERTICAL_LABEL_OFFSET);
+    textSize(SCALE_LABEL_FONTSIZE);
+    text(withSign(x), ux, HALF_SIZE + VERTICAL_SCALE_LABEL_OFFSET);
   }
 
   function labelCoordY(y) {
@@ -154,17 +158,17 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     stroke(0, 0, 0, 48);
     strokeWeight(1);
     fill(0, 0, 0, 48);
-    line(HALF_SIZE, uy, HALF_SIZE + TICK_MARK_LENGTH, uy);
+    line(HALF_SIZE, uy, HALF_SIZE + SCALE_TICK_MARK_LENGTH, uy);
 
     noStroke();
     fill(0, 0, 0, 255);
     textAlign(LEFT);
-    textSize(LABEL_FONTSIZE);
-    text(withSign(y), HALF_SIZE + HORIZONTAL_LABEL_OFFSET, uy);
+    textSize(SCALE_LABEL_FONTSIZE);
+    text(withSign(y), HALF_SIZE + HORIZONTAL_SCALE_LABEL_OFFSET, uy);
   }
 
   function doGridLabels() {
-    const spacing = roundUp(MIN_LABEL_SPACING, gridMesh);
+    const spacing = roundUp(MIN_SCALE_LABEL_SPACING, gridMesh);
 
     for (let r = spacing; r < HALF_SIZE; r += spacing) {
       labelCoordX(-r);
@@ -192,7 +196,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
     noStroke();
     fill(0, 0, 0, 255);
-    textSize(12);
+    textSize(POINT_TOOLTIP_FONTSIZE);
     textAlign(LEFT);
     text(`(${withSign(xCoord(ux))}, ${withSign(yCoord(uy))})`,
       ux + 5, uy - 7);
@@ -243,8 +247,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     stroke(0, MEDIUM_SHADE, MEDIUM_SHADE, 255);
     strokeWeight(1);
     fill(0, 0, 0, 0);
-    line(HALF_SIZE, HALF_SIZE,
-      HALF_SIZE + x * scale, HALF_SIZE - y * scale);
+    line(HALF_SIZE, HALF_SIZE, HALF_SIZE + x * scale, HALF_SIZE - y * scale);
   }
 
   function doRadius(ux, uy) {
@@ -304,11 +307,10 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
     noStroke();
     fill(0, 0, 0, 255);
-    textSize(12);
+    textSize(POINT_TOOLTIP_FONTSIZE);
     textAlign(LEFT);
-    text(`${r.toFixed(0)}${ANGLE_GLYPH}${phi.toFixed(2)}` +
-      `${THIN_SPACE}[${degrees(phi).toFixed(1)}${DEGREES_GLYPH}]`,
-      ux + 5, uy + 15);
+    text(`${r.toFixed(0)}${ANGLE_GLYPH}${phi.toFixed(2)}${THIN_SPACE}` +
+          `[${degrees(phi).toFixed(1)}${DEGREES_GLYPH}]`, ux + 5, uy + 15);
   }
 
   function reveal(ux, uy) {
