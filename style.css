@@ -19,7 +19,7 @@ html, body {
 
 canvas {
   display: block;
-  
+
   /* Keeps double-clicking the canvas from selecting text below it. See Paolo
    * Bergantino (https://stackoverflow.com/users/16417/paolo-bergantino)'s
    * answer to "Prevent text selection after double click" on Stack Overflow:
