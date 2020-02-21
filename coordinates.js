@@ -1,3 +1,15 @@
+// coordinates - visualizes a plane in Cartesian and circular-polar coordinates
+//
+// Written in 2020 by Eliah Kagan <degeneracypressure@gmail.com>.
+//
+// To the extent possible under law, the author(s) have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along
+// with this software. If not, see
+// <http://creativecommons.org/publicdomain/zero/1.0/>.
+
 var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   'use strict';
 
@@ -93,7 +105,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   }
 
   function setup() {
-    createCanvas(FULL_SIZE, FULL_SIZE);
+    createCanvas(FULL_SIZE, FULL_SIZE).parent('coordinates-canvas');
     toggleActivation();
   }
 
