@@ -1,3 +1,17 @@
+/* This file is part of coordinates, which visualizes a plane in Cartesian and
+ * circular-polar coordinates.
+ *
+ * Written in 2020 by Eliah Kagan <degeneracypressure@gmail.com>.
+ *
+ * To the extent possible under law, the author(s) have dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
+ *
+ * You should have received a copy of the CC0 Public Domain Dedication along
+ * with this software. If not, see
+ * <http://creativecommons.org/publicdomain/zero/1.0/>.
+ */
+
 html, body {
   margin: 0;
   padding: 0;
@@ -5,6 +19,16 @@ html, body {
 
 canvas {
   display: block;
+  
+  /* Keeps double-clicking the canvas from selecting text below it. See Paolo
+   * Bergantino (https://stackoverflow.com/users/16417/paolo-bergantino)'s
+   * answer to "Prevent text selection after double click" on Stack Overflow:
+   * https://stackoverflow.com/a/880518
+   */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -ms-user-select: none;
 }
 
 p {
