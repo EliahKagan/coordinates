@@ -10,7 +10,8 @@
 // with this software. If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
+var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] = (
+    function () {
   'use strict';
 
   // Symbolic constants for canvas size, geometry, and color.
@@ -53,8 +54,8 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
   const SCALE_LABELS_FONTSIZE = 8;
   const SCALE_LABELS_MIN_SPACING = 20;
   const SCALE_LABELS_CX_OFFSET = 6;
-  const SCALE_LABELS_CY_OFFSET = SCALE_TICK_MARKS_LENGTH +
-                                  SCALE_LABELS_FONTSIZE;
+  const SCALE_LABELS_CY_OFFSET =
+      SCALE_TICK_MARKS_LENGTH + SCALE_LABELS_FONTSIZE;
 
   // Symbolic constants to tune the fill pattern ("eye candy").
   const PATTERN_CX_OFFSET = 1; // Also test with: 10
@@ -102,6 +103,10 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
 
   function togglePattern() {
     patternModeOn = !patternModeOn;
+
+    // Even if the UI isn't set to respond to cursor position, a pattern
+    // toggle should still take effect immediately. So do it explicitly.
+    update(cxDrawn, cyDrawn);
   }
 
   function setup() {
@@ -415,5 +420,22 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel] = (function () {
     return false;
   }
 
-  return [setup, draw, mouseClicked, doubleClicked, mouseWheel];
+  function keyTyped() {
+    switch (key.toLowerCase()) {
+      case '+':
+      case '=': // Convenient on some keyboards (including US English).
+        adjustGridMesh(GRID_MESH_SCALE_DELTA);
+        return false;
+      case '-':
+        adjustGridMesh(-GRID_MESH_SCALE_DELTA);
+        return false;
+      case 'p':
+        togglePattern();
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  return [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped];
 })();

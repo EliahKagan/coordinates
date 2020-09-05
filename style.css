@@ -34,3 +34,7 @@ canvas {
 p {
   margin-left: 25px;
 }
+
+kbd {
+  border: 1px solid black;
+}
