@@ -111,6 +111,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] = (
 
   function setup() {
     createCanvas(FULL_SIZE, FULL_SIZE).parent('coordinates-canvas');
+    focus();
     toggleActivation();
   }
 
