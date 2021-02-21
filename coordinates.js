@@ -377,9 +377,9 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         const cy = mouseY;
         if (!inCanvas(cx, cy)) return;
 
-        update(cx, cy);
-        cxDrawn = cx;
-        cyDrawn = cy;
+        cxDrawn = Math.round(cx);
+        cyDrawn = Math.round(cy);
+        update(cxDrawn, cyDrawn);
     }
 
     function mouseClicked() {
