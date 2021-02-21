@@ -39,8 +39,6 @@ h2 {
 }
 
 canvas {
-  display: block;
-
   /* Prevent double-clicking the canvas from selecting text below it. */
   user-select: none;
 }
