@@ -38,4 +38,3 @@ dependencies are not (though, like this project, they are all free software):
   1.1.](https://github.com/RedHatOfficial/RedHatFont/blob/master/LICENSE)
 - [Fira Code is licensed under the SIL OFL
   1.1.](https://github.com/tonsky/FiraCode/blob/master/LICENSE)
-  
