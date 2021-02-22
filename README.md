@@ -22,8 +22,8 @@ editor](https://editor.p5js.org/Eliah/sketches/MAJ8qCEc).
 
 ## A note on dependencies
 
-You won't find the source code of those dependencies in this repostory, because
-they are retrieved via
+You won't find the source code of those dependencies in this repository,
+because they are retrieved via
 [CDNs](https://en.wikipedia.org/wiki/Content_delivery_network) when you load
 the page.
 
