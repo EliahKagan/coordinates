@@ -10,8 +10,7 @@
 // with this software. If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
-            (function () {
+(function () {
     'use strict';
 
     // Symbolic constants for canvas size, geometry, and color.
@@ -109,7 +108,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         update(cxDrawn, cyDrawn);
     }
 
-    function setup() {
+    window.setup = function () {
         createCanvas(FULL_SIZE, FULL_SIZE).parent('coordinates-canvas');
         focus();
         toggleActivation();
@@ -370,19 +369,19 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         reveal(cx, cy);
     }
 
-    function draw() {
+    window.draw = function () {
         if (!activeModeOn) return;
 
         const cx = mouseX;
         const cy = mouseY;
         if (!inCanvas(cx, cy)) return;
 
-        cxDrawn = Math.round(cx);
-        cyDrawn = Math.round(cy);
+        cxDrawn = round(cx);
+        cyDrawn = round(cy);
         update(cxDrawn, cyDrawn);
     }
 
-    function mouseClicked() {
+    window.mouseClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
             toggleActivation();
         }
@@ -390,7 +389,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         return false;
     }
 
-    function doubleClicked() {
+    window.doubleClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
             togglePattern();
         }
@@ -414,7 +413,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         update(cxDrawn, cyDrawn);
     }
 
-    function mouseWheel(event) {
+    window.mouseWheel = function (event) {
         if (inCanvas(mouseX, mouseY) && event.delta !== 0) {
             adjustGridMesh(-Math.sign(event.delta) * GRID_MESH_SCALE_DELTA);
             return false;
@@ -423,7 +422,7 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
         return true;
     }
 
-    function keyTyped() {
+    window.keyTyped = function () {
         switch (key.toLowerCase()) {
         case '+':
         case '=': // Convenient on some keyboards (including US English).
@@ -439,6 +438,4 @@ var [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped] =
             return true;
         }
     }
-
-    return [setup, draw, mouseClicked, doubleClicked, mouseWheel, keyTyped];
 })();
