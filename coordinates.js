@@ -112,7 +112,7 @@
         createCanvas(FULL_SIZE, FULL_SIZE).parent('coordinates-canvas');
         focus();
         toggleActivation();
-    }
+    };
 
     function inCanvas(cx, cy) {
         return 0 <= cx && cx < FULL_SIZE && 0 <= cy && cy < FULL_SIZE;
@@ -379,7 +379,7 @@
         cxDrawn = round(cx);
         cyDrawn = round(cy);
         update(cxDrawn, cyDrawn);
-    }
+    };
 
     window.mouseClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
@@ -388,7 +388,7 @@
         }
 
         return true;
-    }
+    };
 
     window.doubleClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
@@ -397,7 +397,7 @@
         }
 
         return true;
-    }
+    };
 
     function adjustGridMesh(delta) {
         if (haveGrid()) {
@@ -422,7 +422,7 @@
         }
 
         return true;
-    }
+    };
 
     window.keyTyped = function () {
         switch (key.toLowerCase()) {
@@ -439,5 +439,5 @@
         default:
             return true;
         }
-    }
+    };
 })();
