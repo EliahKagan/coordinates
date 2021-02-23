@@ -384,17 +384,19 @@
     window.mouseClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
             toggleActivation();
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     window.doubleClicked = function () {
         if (inCanvas(mouseX, mouseY)) {
             togglePattern();
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     function adjustGridMesh(delta) {
