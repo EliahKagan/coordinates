@@ -69,6 +69,11 @@ b {
   letter-spacing: .03em;
 }
 
+.github-fork-ribbon::after {
+  font-family: 'Red Hat Text', sans-serif;
+  letter-spacing: .02em;
+}
+
 .light-keys kbd {
   cursor: text;
   font-family: 'Fira Code', monospace;
