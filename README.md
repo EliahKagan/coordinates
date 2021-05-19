@@ -38,7 +38,7 @@ describing the controls.
 
 ## Known bugs
 
-Accessibility would be improved of the dot could be moved on the canvas, and
+Accessibility would be improved if the dot could be moved on the canvas, and
 &ldquo;picked up&rdquo; and &ldquo;put down,&rdquo; using keyboard input (e.g.,
 arrow keys) as an alternative to a pointing device such as a mouse. But that is
 not currently implemented. As an (admittedly lackluster) workaround, you may be
